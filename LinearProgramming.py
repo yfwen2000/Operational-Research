@@ -104,9 +104,21 @@ class LP:
 
         return self._get_optimal_solution()
 
+    def _elementary_row_op(self, i, j, st, ed):
+        """
+        i : int, row index in the array
+        j : int, col index in the array
+        st : int, started row
+        ed : int, ended row
+        """
+        self.table[i] /= self.table[i][j]
+        for _i in range(st, ed):
+            if _i != i:
+                self.table[_i] -= self.table[_i][j] * self.table[i]
+
     def _dual_solve(self):
-        # # get the Dual Problem's solution
-        # self.dual_index = deepcopy(self.base_index)
+        # get the Dual Problem's solution
+        self.dual_index = deepcopy(self.base_index)
         while self._check_col() is not None:
             index_out = self._check_col()
             theta = float('inf')
@@ -128,7 +140,12 @@ class LP:
 
             # print(self.table)
             # print("===================")
-        return self._get_optimal_solution()
+        answer = self._get_optimal_solution()
+        answer += "\nthe optimal dual variable:\n"
+        for i, idx in enumerate(self.dual_index):
+            answer += "lambda_{}: {: >7.4f}\n".format(i + 1,
+                                                      -self.table[0][idx])
+        return answer
 
     def _check_col(self):
         # return index of the first negative num in B^{-1} * b
@@ -149,12 +166,6 @@ class LP:
                 optimal_variable += "x_{} = {: >7.4f}\n".format(idx, 0)
         answer += "optimal variable:\n{}".format(optimal_variable)
         return answer
-
-    def _elementary_row_op(self, i, j, st, ed):
-        self.table[i] /= self.table[i][j]
-        for _i in range(st, ed):
-            if _i != i:
-                self.table[_i] -= self.table[_i][j] * self.table[i]
 
 
 if __name__ == '__main__':
